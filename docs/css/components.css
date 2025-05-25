@@ -16,7 +16,6 @@
   box-shadow: var(--shadow-lg);
 }
 
-
 .btn:active {
   transform: translateY(1px);
   box-shadow: var(--shadow-sm);
@@ -51,14 +50,6 @@
   padding: var(--space-sm) var(--space-md);
   font-size: var(--font-size-sm);
   z-index: var(--z-index-ui);
-}
-
-@media (min-width: 768px) {
-  .audio-btn {
-    top: var(--space-md);
-    right: var(--space-md);
-    font-size: var(--font-size-md);
-  }
 }
 
 .card {

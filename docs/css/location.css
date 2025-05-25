@@ -1,0 +1,102 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+#map-container {
+  position: relative;
+  min-height: 600px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+#map {
+  height: 600px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#location-info {
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.filter-container {
+  display: flex;
+  justify-content: center;
+  margin: 15px 0;
+  gap: 10px;
+}
+
+.filter-container button {
+  background-color: #f1f1f1;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.filter-container button.active {
+  background-color: #4caf50;
+  color: white;
+}
+
+#loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 15px 25px;
+  border-radius: 5px;
+  z-index: 1000;
+}
+
+#nearby-places {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.place-card {
+  flex: 1 1 250px; /* grow, shrink, basis */
+  min-width: 250px;
+  max-width: 300px;
+  background-color: white;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.place-card h3 {
+  margin-top: 0;
+  color: #333;
+}
+.place-card p {
+  color: #666;
+  margin: 5px 0;
+}
+
+.place-card a {
+  display: inline-block;
+  margin-top: 10px;
+  color: #4caf50;
+  text-decoration: none;
+}
+
+.place-card a:hover {
+  text-decoration: underline;
+}

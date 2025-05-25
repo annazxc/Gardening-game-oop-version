@@ -1,48 +1,48 @@
 :root {
-    --color-primary: #8a4f7d;
-    --color-secondary: #4a2c40;
-    --color-accent: #c9a0dc;
-    --color-accent-light: #d9b0ec;
-    --color-background: #f8dac5;
-    --color-text: #181818;
-    --color-white: #ffffff;
-    
-    --btn-primary: #4CAF50;
-    --btn-hover: #45a049;
-    --btn-active: #3e8e41;
+  --color-primary: #8a4f7d;
+  --color-secondary: #4a2c40;
+  --color-accent: #c9a0dc;
+  --color-accent-light: #d9b0ec;
+  --color-background: #f8dac5;
+  --color-text: #181818;
+  --color-white: #ffffff;
   
-    --border-radius-sm: 5px;
-    --border-radius-md: 12px;
-    --border-radius-lg: 15px;
-    
-    --space-xs: 0.25rem;
-    --space-sm: 0.5rem;
-    --space-md: 1rem;
-    --space-lg: 1.5rem;
-    --space-xl: 2rem;
-    --space-xxl: 3rem;
-    
-    
-    --font-family-primary: 'Alice', system-ui, Helvetica, Arial, sans-serif;
-    --font-family-secondary: system-ui, Helvetica, Arial, sans-serif;
-    --font-size-xs: 0.75rem;
-    --font-size-sm: 0.9rem;
-    --font-size-md: 1rem;
-    --font-size-lg: 1.5rem;
-    --font-size-xl: 2rem;
-    --font-size-xxl: 2.5rem;
-    
-    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
-    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.2);
-    --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.2);
-    
-    
-    --transition-fast: 0.2s ease;
-    --transition-medium: 0.3s ease;
-    
-    
-    --z-index-base: 1;
-    --z-index-game: 2;
-    --z-index-ui: 3;
-    --z-index-modal: 10;
-  }
+  --btn-primary: #4CAF50;
+  --btn-hover: #45a049;
+  --btn-active: #3e8e41;
+
+  --border-radius-sm: 5px;
+  --border-radius-md: 12px;
+  --border-radius-lg: 15px;
+  
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-xxl: 3rem;
+  
+  
+  --font-family-primary: 'Alice', system-ui, Helvetica, Arial, sans-serif;
+  --font-family-secondary: system-ui, Helvetica, Arial, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.9rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.5rem;
+  --font-size-xl: 2rem;
+  --font-size-xxl: 2.5rem;
+  
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.2);
+  
+  
+  --transition-fast: 0.2s ease;
+  --transition-medium: 0.3s ease;
+  
+  
+  --z-index-base: 1;
+  --z-index-game: 2;
+  --z-index-ui: 3;
+  --z-index-modal: 10;
+}

@@ -1,9 +1,4 @@
-
 @import url(variables.css);
 @import url(base.css);
 @import url(layout.css);
 @import url(components.css);
-@import url(seed.css);
-/*no need to add garden*/
-/*check if each css is need or not for all, 
-if only needed in certain file, link them there only.*/

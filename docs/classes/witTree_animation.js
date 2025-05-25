@@ -1,4 +1,4 @@
-class WitTreeAnimator {
+export class WitTreeAnimator {
     constructor(treeElement) {
         this.treeElement = typeof treeElement === 'string' ? document.getElementById(treeElement) : treeElement;
         if (!this.treeElement) {
@@ -59,30 +59,24 @@ class WitTreeAnimator {
         this.auraContainer = document.createElement('div');
         this.auraContainer.classList.add('wit-tree-aura-container');
         
-        // Create wisdom particles container
         this.wisdomParticlesContainer = document.createElement('div');
         this.wisdomParticlesContainer.classList.add('wit-tree-wisdom-particles');
         
-        // Create overlay for shadow effects
         this.shadowOverlay = document.createElement('div');
         this.shadowOverlay.classList.add('wit-tree-shadow');
         
-        // Add elements to tree in the correct order
         this.treeElement.appendChild(this.shadowOverlay);
         this.treeElement.appendChild(this.glowElement);
         this.treeElement.appendChild(this.auraContainer);
         this.treeElement.appendChild(this.wisdomParticlesContainer);
         
-        // Add styles
         this.addAnimationStyles();
     }
     
     addAnimationStyles() {
-        // Check if styles already exist
         if (document.getElementById('wit-tree-animation-styles')) {
             return;
         }
-        
         const styleElement = document.createElement('style');
         styleElement.id = 'wit-tree-animation-styles';
         styleElement.textContent = `
@@ -244,28 +238,18 @@ class WitTreeAnimator {
     }
     
     startBaseAnimations() {
-        // Start gentle swaying animation (compatible with original)
         this.startSwaying();
-        
-        // Random blinking
         this.startEyeBlinking();
-        
-        // Start occasional leaf falling (integrating with your existing function)
         this.startLeafCreation();
     }
     
     startSwaying() {
-        if (this.isSwaying) return;
-        
         this.isSwaying = true;
         this.angle = 0;
         
         const sway = () => {
-            if (!this.isSwaying) return;
-            
             this.angle += 0.02;
             const baseSwayAmount = Math.sin(this.angle) * 3;
-            // Add subtle acceleration based on speaking state
             const swayFactor = this.isSpeaking ? 1.2 : 1;
             const swayAmount = baseSwayAmount * swayFactor;
             
@@ -281,7 +265,6 @@ class WitTreeAnimator {
     }
     
     startEyeBlinking() {
-        // Random natural blinking
         const blink = () => {
             if (Math.random() > 0.7) {
                 this.leftEye.style.animation = 'blink 1s';
@@ -293,19 +276,15 @@ class WitTreeAnimator {
                 }, 1000);
             }
             
-            // Schedule next blink
             setTimeout(blink, 2000 + Math.random() * 4000);
         };
-        
-        // Start the blink cycle
+    
         setTimeout(blink, 2000);
     }
     
     startLeafCreation() {
-        // This integrates with your existing createFallingLeaf function
         this.leafCreationInterval = setInterval(() => {
             if (Math.random() > 0.7) {
-                // Uses your existing function which should be globally available
                 if (typeof createFallingLeaf === 'function') {
                     createFallingLeaf(this.treeElement);
                 }
@@ -314,7 +293,6 @@ class WitTreeAnimator {
     }
     
     setupEventListeners() {
-        // Track mouse movement for eye following
         document.addEventListener('mousemove', (event) => {
             if (!this.leftEye || !this.rightEye) return;
             
@@ -351,10 +329,14 @@ class WitTreeAnimator {
                 this.playerProximity = proximity;
             }
         });
+        document.addEventListener('click', () => {
+            addStorytellerStyles();
+            showStorytellerDialog();
+        });
+
+
     }
-    
-    // API Methods that can be called
-    
+
     activateGlowEffect() {
         if (!this.isGlowing) {
             this.glowElement.classList.add('active');
@@ -521,7 +503,6 @@ class WitTreeAnimator {
     createWisdomParticle() {
         if (!this.isSpeaking) return;
         
-        // List of wisdom symbols and characters
         const wisdomSymbols = [
             '♦', '✤', '✺', '❀', '❁', '✿', 
             '♛', '❧', '❦', '✧', '✦', '✩',
@@ -578,8 +559,51 @@ class WitTreeAnimator {
         this.stopSwaying();
         clearInterval(this.leafCreationInterval);
         clearInterval(this.wisdomParticlesInterval);
-        
-        // Additional cleanup if needed
     }
 }
 
+function createFallingLeaf(treeElement) {
+    const leaf = document.createElement('div');
+    leaf.className = 'falling-leaf';
+    
+    const treeRect = treeElement.getBoundingClientRect();
+    const startX = Math.random() * 80 + 20;
+    
+    leaf.style.position = 'absolute';
+    leaf.style.left = `${startX}px`;
+    leaf.style.top = '50px';
+    leaf.style.width = '10px';
+    leaf.style.height = '10px';
+    leaf.style.backgroundColor = Math.random() > 0.5 ? '#8BC34A' : '#CDDC39';
+    leaf.style.borderRadius = '50% 0 50% 50%';
+    leaf.style.transform = `rotate(${Math.random() * 360}deg)`;
+    leaf.style.opacity = '0.8';
+    leaf.style.zIndex = '49';
+    
+    treeElement.appendChild(leaf);
+    
+    let posY = 50;
+    let posX = startX;
+    let rotation = Math.random() * 360;
+    let opacity = 0.8;
+    
+    function fall() {
+        posY += 1;
+        posX += Math.sin(posY / 10) * 0.5;
+        rotation += 2;
+        opacity -= 0.005;
+        
+        leaf.style.top = `${posY}px`;
+        leaf.style.left = `${posX}px`;
+        leaf.style.transform = `rotate(${rotation}deg)`;
+        leaf.style.opacity = opacity;
+        
+        if (posY < 200 && opacity > 0) {
+            requestAnimationFrame(fall);
+        } else {
+            leaf.remove();
+        }
+    }
+    
+    requestAnimationFrame(fall);
+}

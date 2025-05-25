@@ -1,5 +1,5 @@
 /* Import Alice in Wonderland themed font */
-@import url('https://fonts.googleapis.com/css2?family=Alice&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Alice&display=swap");
 
 * {
   box-sizing: border-box;
@@ -22,7 +22,10 @@ body {
   flex-direction: column;
 }
 
-h1, h4, h5, h6 {
+h1,
+h4,
+h5,
+h6 {
   color: var(--color-primary);
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
   margin-bottom: var(--space-md);

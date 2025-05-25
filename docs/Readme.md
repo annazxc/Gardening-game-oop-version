@@ -92,3 +92,9 @@ pip install flask flask-cors langchain-community huggingface-hub
 # Run the API server:
 python vector_db_api.py
 
+# Check available voices
+```
+treeVoice.getAvailableVoices().forEach((voice, index) => {
+    console.log(`Voice ${index}: ${voice.name} (${voice.lang})`);
+});
+```
