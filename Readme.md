@@ -1,6 +1,6 @@
 # Hello and Welcome!
 
-Play the game directly by clicking [here](https://annazxc.github.io/Gardening-game.github.io/).
+Play the game directly by clicking [here](https://annazxc.github.io/Gardening-game-oop-version/).
 
 ## Curious About Me?
 
