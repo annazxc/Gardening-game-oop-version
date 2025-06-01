@@ -1,3 +1,4 @@
+import { places } from "../js/data.js";
 export class Buttons {
   constructor(game, controls) {
     this.game = game;
@@ -21,18 +22,13 @@ export class Buttons {
       });
     }
   }
-  //using player
+
   setupSleepButton() {
     const sleepBtn = document.getElementById("sleepBtn");
     if (sleepBtn) {
       sleepBtn.addEventListener("click", () => {
-        if (typeof Player !== "undefined") {
-          Player.rest();
-          if (typeof places !== "undefined" && places[6]) {
-            this.game.showMarkerAt(places[6]);
-          }
-        } else {
-          console.warn("Player object not found");
+        if (typeof places !== "undefined" && places[6]) {
+          this.game.showMarkerAt(places[6]);
         }
       });
     }

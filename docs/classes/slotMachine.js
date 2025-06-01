@@ -1,10 +1,11 @@
 export class SlotMachine {
-  constructor() {
+  constructor(plantingManager) {
     this.items = ["🌱", "🌿", "🌳", "🌸", "🍎", "💎"];
     this.overlay = null;
     this.reels = [];
     this.resultDisplay = null;
     this.spinButton = null;
+    this.plantingManager = plantingManager;
   }
 
   show() {
@@ -96,14 +97,12 @@ export class SlotMachine {
       this.checkWin();
     }, 3000);
   }
-
   checkWin() {
     const results = this.reels.map((reel) => reel.textContent);
 
     let bonus = 0;
     let reward = "";
     if (results[0] === results[1] && results[1] === results[2]) {
-      // All three match - jackpot!
       bonus = 50;
       reward = `JACKPOT! All three match! You won ${bonus} bonus sprouts!`;
     } else if (
@@ -111,24 +110,14 @@ export class SlotMachine {
       results[1] === results[2] ||
       results[0] === results[2]
     ) {
-      // Two match
       bonus = 20;
       reward = `You got a pair! You won ${bonus} bonus sprouts!`;
     } else {
-      // No match
       bonus = 5;
       reward = `No matches, but you still win ${bonus} bonus sprouts!`;
     }
 
-    // Add bonus to sprouts count
-    const sprouts = parseInt(localStorage.getItem("sprouts") || 0);
-    localStorage.setItem("sprouts", sprouts + bonus);
-
-    // Update sprouts display if it exists
-    const sproutsCountElement = document.getElementById("sprouts-count");
-    if (sproutsCountElement) {
-      sproutsCountElement.textContent = sprouts + bonus;
-    }
+    this.plantingManager.addSprouts(bonus);
 
     this.resultDisplay.textContent = reward;
   }

@@ -1,11 +1,13 @@
+import { getApiKey } from "../api/keys.js";
 export class StorytellerAPI {
   constructor() {
     // Import the getApiKey function
-    this.getApiKey = (async () => {
-      const module = await import("../js/config.js");
-      return module.getApiKey;
-    })();
+    this.getApiKey = getApiKey;
 
+    //use folder api --> wonderland_db vector database,
+    // use this database and LLMs to reply
+    // use Python backend to serve the Vector DB
+    // set endpoint
     // These will be initialized in the init method
     this.GROQ_API_KEY = null;
     this.GEMINI_API_KEY = null;
@@ -18,18 +20,11 @@ export class StorytellerAPI {
 
   async init() {
     try {
-      const getApiKey = await this.getApiKey;
-      this.GROQ_API_KEY = getApiKey("groq");
-      this.GEMINI_API_KEY = getApiKey("gemini");
-      this.VECTOR_DB_API_ENDPOINT = getApiKey("vectordb");
+      this.GROQ_API_KEY = this.getApiKey("groq");
+      this.GEMINI_API_KEY = this.getApiKey("gemini");
+      this.VECTOR_DB_API_ENDPOINT = "http://localhost:8000/api/query";
     } catch (error) {
       console.error("Error initializing API keys:", error);
-      // Fallback values
-      this.GROQ_API_KEY =
-        "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";
-      this.GEMINI_API_KEY = "AIzaSyAHj_woIM0XZWcugorfck5z4nSUgsI7Y-o";
-      this.VECTOR_DB_API_ENDPOINT =
-        "https://your-vector-db-endpoint.com/api/query";
     }
   }
 
@@ -225,40 +220,4 @@ function ensureInitialized() {
     })();
   }
   return initPromise;
-}
-
-const GROQ_API_KEY = () => storytellerAPIInstance.GROQ_API_KEY;
-const GEMINI_API_KEY = () => storytellerAPIInstance.GEMINI_API_KEY;
-const VECTOR_DB_API_ENDPOINT = () =>
-  storytellerAPIInstance.VECTOR_DB_API_ENDPOINT;
-
-async function queryAliceStorybase(userQuestion) {
-  await ensureInitialized();
-  return storytellerAPIInstance.queryAliceStorybase(userQuestion);
-}
-
-async function fetchRelevantContext(query) {
-  await ensureInitialized();
-  return storytellerAPIInstance.fetchRelevantContext(query);
-}
-
-function getConversationHistoryPrompt() {
-  return storytellerAPIInstance.getConversationHistoryPrompt();
-}
-
-function addToConversationHistory(role, content) {
-  return storytellerAPIInstance.addToConversationHistory(role, content);
-}
-
-async function generateStorytellerResponse(userQuestion, context) {
-  await ensureInitialized();
-  return storytellerAPIInstance.generateStorytellerResponse(
-    userQuestion,
-    context
-  );
-}
-
-async function fallbackToGemini(userQuestion, context) {
-  await ensureInitialized();
-  return storytellerAPIInstance.fallbackToGemini(userQuestion, context);
 }

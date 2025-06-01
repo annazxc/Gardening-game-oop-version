@@ -1,4 +1,4 @@
-import { getApiKey } from "../js/config.js";
+import { getApiKey } from "../api/keys.js";
 class LocationMap {
   constructor(config = {}) {
     this.config = {

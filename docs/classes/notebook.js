@@ -1,13 +1,7 @@
+import { PoemGenerator } from "./poem.js";
+import { createElement } from "../js/utils.js";
 export class NotebookManager {
-  static _instance = null;
-
-  constructor(dependencies = {}) {
-    // Enforce singleton pattern
-    if (NotebookManager._instance) {
-      return NotebookManager._instance;
-    }
-
-    // Configuration
+  constructor() {
     this.config = {
       overlayId: "notebook-overlay",
       overlayClass: "notebook-overlay",
@@ -16,39 +10,10 @@ export class NotebookManager {
       closeDelay: 500,
     };
 
-    // Dependency injection for better testability
-    this.dependencies = {
-      collectedWords:
-        dependencies.collectedWords ||
-        (typeof collectedWords !== "undefined" ? collectedWords : []),
-      collectedPhrases:
-        dependencies.collectedPhrases ||
-        (typeof collectedPhrases !== "undefined" ? collectedPhrases : []),
-      poemGenerator:
-        dependencies.poemGenerator ||
-        (typeof poemGeneratorInstance !== "undefined"
-          ? poemGeneratorInstance
-          : null),
-      storage: dependencies.storage || localStorage,
-      navigator: dependencies.navigator || window.location,
-      showSlotMachine:
-        dependencies.showSlotMachine ||
-        (typeof showSlotMachine !== "undefined" ? showSlotMachine : () => {}),
-      alert: dependencies.alert || window.alert,
-    };
-
     this.elements = new Map();
-    NotebookManager._instance = this;
+    this.poem = new PoemGenerator();
   }
 
-  static getInstance(dependencies = {}) {
-    if (!NotebookManager._instance) {
-      NotebookManager._instance = new NotebookManager(dependencies);
-    }
-    return NotebookManager._instance;
-  }
-
-  // Main public method to show the notebook
   showCollectionNotebook() {
     try {
       this.cleanup();
@@ -57,11 +22,11 @@ export class NotebookManager {
       this.animateOpen(overlay);
     } catch (error) {
       console.error("Error showing collection notebook:", error);
-      this.dependencies.alert("Failed to open notebook. Please try again.");
+      alert("Failed to open notebook. Please try again.");
     }
   }
 
-  // Internal methods (conceptually private, but public for simplicity)
+  // Internal methods
   cleanup() {
     const existingOverlay = document.querySelector(
       `.${this.config.overlayClass}`
@@ -73,12 +38,12 @@ export class NotebookManager {
   }
 
   buildNotebookUI() {
-    const overlay = this.createElement("div", {
+    const overlay = createElement("div", {
       id: this.config.overlayId,
       className: this.config.overlayClass,
     });
 
-    const content = this.createElement("div", {
+    const content = createElement("div", {
       className: this.config.contentClass,
     });
 
@@ -107,73 +72,50 @@ export class NotebookManager {
     }, this.config.animationDelay);
   }
 
-  createElement(tag, attributes = {}, textContent = "") {
-    const element = document.createElement(tag);
-
-    Object.entries(attributes).forEach(([key, value]) => {
-      if (key === "className") {
-        element.className = value;
-      } else if (key === "onclick") {
-        element.onclick = value;
-      } else {
-        element.setAttribute(key, value);
-      }
-    });
-
-    if (textContent) {
-      element.textContent = textContent;
-    }
-
-    return element;
-  }
-
   createTitleSection() {
-    return this.createElement("h2", {}, `Your Collected Words & Phrases`);
+    return createElement("h2", {}, `Your Collected Words & Phrases`);
   }
-
   createWordsSection() {
-    const section = this.createElement("div", {
+    const section = createElement("div", {
       className: "notebook-section",
     });
 
-    const title = this.createElement("h3", {}, "Words Collected:");
-    const wordsList = this.createElement(
-      "p",
-      {},
-      this.dependencies.collectedWords.join(" ")
+    const title = createElement("h3", {}, "Words Collected:");
+
+    const words = JSON.parse(localStorage.getItem("words"));
+    const wordsList = createElement(
+      "div",
+      {
+        className: "words-display",
+      },
+      words
     );
-    const seedsCount = this.createElement(
+
+    const seedsCount = createElement(
       "p",
       {
         className: "seeds-count",
       },
-      `Total Seeds: ${this.dependencies.collectedWords.length}`
+      `Total Seeds: ${words.length}`
     );
 
     [title, wordsList, seedsCount].forEach((el) => section.appendChild(el));
-
     return section;
   }
 
   createPhrasesSection() {
-    const section = this.createElement("div", {
+    const section = createElement("div", {
       className: "notebook-section",
     });
-    const title = this.createElement("h3", {}, "Completed Phrases:");
+    const title = createElement("h3", {}, "Completed Phrases:");
 
     section.appendChild(title);
 
-    // Initialize poem generator if available
-    if (
-      this.dependencies.poemGenerator &&
-      this.dependencies.poemGenerator.initPoemGenerator
-    ) {
-      this.dependencies.poemGenerator.initPoemGenerator();
-    }
+    const phrases = JSON.parse(localStorage.getItem("phrases") || "[]");
 
-    if (this.dependencies.collectedPhrases.length > 0) {
-      this.dependencies.collectedPhrases.forEach((phrase) => {
-        const phraseElement = this.createElement(
+    if (phrases.length > 0) {
+      phrases.forEach((phrase) => {
+        const phraseElement = createElement(
           "p",
           {
             className: "completed-phrase",
@@ -183,7 +125,7 @@ export class NotebookManager {
         section.appendChild(phraseElement);
       });
     } else {
-      const noPhrases = this.createElement(
+      const noPhrases = createElement(
         "p",
         {},
         "No complete phrases collected yet. Keep exploring!"
@@ -193,9 +135,40 @@ export class NotebookManager {
 
     return section;
   }
+  handleExchangeSeeds() {
+    try {
+      const words = JSON.parse(localStorage.getItem("words") || "[]");
+      const phrases = JSON.parse(localStorage.getItem("phrases") || "[]");
+      const seedCount = words.length;
+
+      if (seedCount > 0) {
+        // Store sprouts with timestamp for session tracking
+        const sproutData = {
+          count: seedCount,
+          timestamp: Date.now(),
+        };
+        localStorage.setItem("sprouts", JSON.stringify(sproutData));
+
+        if (phrases.length > 0) {
+          if (typeof showSlotMachine !== "undefined") {
+            showSlotMachine();
+          }
+        } else {
+          alert(
+            `You've exchanged ${seedCount} seeds for ${seedCount} sprouts!`
+          );
+        }
+      } else {
+        alert("You don't have any seeds to exchange yet!");
+      }
+    } catch (error) {
+      console.error("Error exchanging seeds:", error);
+      alert("Failed to exchange seeds. Please try again.");
+    }
+  }
 
   createButtonContainer() {
-    const container = this.createElement("div", {
+    const container = createElement("div", {
       className: "notebook-buttons",
     });
 
@@ -203,6 +176,7 @@ export class NotebookManager {
       this.createExchangeButton(),
       this.createPlantButton(),
       this.createContinueButton(),
+      this.createPoemButton(),
     ];
 
     buttons.forEach((button) => container.appendChild(button));
@@ -211,7 +185,7 @@ export class NotebookManager {
   }
 
   createExchangeButton() {
-    return this.createElement(
+    return createElement(
       "button",
       {
         className: "btn btn-primary btn-success",
@@ -220,9 +194,21 @@ export class NotebookManager {
       "Exchange Seeds for Sprouts"
     );
   }
+  createPoemButton() {
+    return createElement(
+      "button",
+      {
+        className: "btn btn-primary",
+        onclick: () => {
+          this.poem.initPoemGenerator();
+        },
+      },
+      "Generate Poem"
+    );
+  }
 
   createPlantButton() {
-    return this.createElement(
+    return createElement(
       "button",
       {
         className: "btn btn-primary",
@@ -233,7 +219,7 @@ export class NotebookManager {
   }
 
   createContinueButton() {
-    return this.createElement(
+    return createElement(
       "button",
       {
         className: "btn btn-primary",
@@ -243,35 +229,12 @@ export class NotebookManager {
     );
   }
 
-  handleExchangeSeeds() {
-    try {
-      const seedCount = this.dependencies.collectedWords.length;
-
-      if (seedCount > 0) {
-        this.dependencies.storage.setItem("sprouts", seedCount.toString());
-
-        if (this.dependencies.collectedPhrases.length > 0) {
-          this.dependencies.showSlotMachine();
-        } else {
-          this.dependencies.alert(
-            `You've exchanged ${seedCount} seeds for ${seedCount} sprouts!`
-          );
-        }
-      } else {
-        this.dependencies.alert("You don't have any seeds to exchange yet!");
-      }
-    } catch (error) {
-      console.error("Error exchanging seeds:", error);
-      this.dependencies.alert("Failed to exchange seeds. Please try again.");
-    }
-  }
-
   handleStartPlanting() {
     try {
-      this.dependencies.navigator.href = "planting.html";
+      window.location.href = "planting.html";
     } catch (error) {
       console.error("Error navigating to planting page:", error);
-      this.dependencies.alert("Failed to navigate to planting page.");
+      alert("Failed to navigate to planting page.");
     }
   }
 
@@ -296,19 +259,5 @@ export class NotebookManager {
     } catch (error) {
       console.error("Error closing notebook:", error);
     }
-  }
-
-  // Public utility methods
-  updateDependencies(newDependencies) {
-    this.dependencies = { ...this.dependencies, ...newDependencies };
-  }
-
-  updateConfig(newConfig) {
-    this.config = { ...this.config, ...newConfig };
-  }
-
-  destroy() {
-    this.cleanup();
-    NotebookManager._instance = null;
   }
 }

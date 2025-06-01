@@ -1,3 +1,6 @@
+import { NotebookManager } from "./notebook.js";
+import { phrases } from "../js/data.js";
+import { createElement } from "../js/utils.js";
 export class SeedCollection {
   constructor(controls) {
     this.collectedWords = [];
@@ -8,6 +11,7 @@ export class SeedCollection {
     this.controls = controls;
 
     this.phrases = phrases; //phrases in data.js
+    this.notebookManager = new NotebookManager();
 
     this.config = {
       seedButtonTimeout: 3000,
@@ -28,23 +32,19 @@ export class SeedCollection {
   }
 
   createSeedButton() {
-    const seedButton = this.createElement("button", {
-      className: "btn btn-primary",
-      id: "seedButton",
-      textContent: "Click for Seeds",
-    });
+    const seedButton = createElement(
+      "button",
+      {
+        className: "btn btn-primary",
+        id: "seedButton",
+      },
+      "Click for Seeds"
+    );
 
     this.applySeedButtonStyles(seedButton);
     this.attachSeedButtonToContainer(seedButton);
     this.setupSeedButtonBehavior(seedButton);
     this.scheduleSeedButtonRemoval(seedButton);
-  }
-
-  // Create DOM element with properties
-  createElement(tag, properties = {}) {
-    const element = document.createElement(tag);
-    Object.assign(element, properties);
-    return element;
   }
 
   applySeedButtonStyles(button) {
@@ -81,30 +81,30 @@ export class SeedCollection {
     }, this.config.seedButtonTimeout);
   }
 
-  // Initialize seed collection system by hooking into movement
   initSeedCollectionSystem() {
-    // Store reference to original method with proper binding
-    const originalMoveMarker = this.controls.moveMarker;
-
-    // Override with arrow function to preserve context
-    this.controls.moveMarker = (deltaX, deltaY) => {
-      // Call original method with proper context
-      originalMoveMarker.call(this.controls, deltaX, deltaY);
-
-      // Add our seed collection check
-      this.checkForSeedCollection();
-    };
+    console.log("Seed collection system initialized");
   }
 
   // Check for seed collection on player movement
   checkForSeedCollection() {
+    console.log("Checking for seed collection...");
+
     const playerRect = this.getPlayerRect();
-    console.log("p");
-    if (!playerRect) return;
+    console.log("Player rect:", playerRect);
+
+    if (!playerRect) {
+      console.log("No player rect found");
+      return;
+    }
+
+    console.log("Active seeds count:", this.activeSeeds.size);
 
     this.activeSeeds.forEach((seed) => {
       const seedRect = seed.getBoundingClientRect();
+      console.log("Checking seed at:", seedRect);
+
       if (this.rectsIntersect(seedRect, playerRect)) {
+        console.log("Collision detected!");
         this.collectSeed(seed);
       }
     });
@@ -124,7 +124,6 @@ export class SeedCollection {
   collectSeed(seedElement) {
     const word = seedElement.textContent;
     this.collectedWords.push(word);
-    this.updateNotebook(word);
     this.playSeedCollectSound();
     this.removeSeed(seedElement);
     this.checkForCompletedPhrases();
@@ -159,10 +158,13 @@ export class SeedCollection {
 
   // Create individual bouncing seed
   createBouncingSeed(word, originalPhrase) {
-    const seedElement = this.createElement("div", {
-      className: "bouncing-seed",
-      textContent: word,
-    });
+    const seedElement = createElement(
+      "div",
+      {
+        className: "bouncing-seed",
+      },
+      word
+    );
 
     seedElement.dataset.originalPhrase = originalPhrase;
 
@@ -235,8 +237,10 @@ export class SeedCollection {
       alert(`Time's up! 
 Feeling Good?`);
 
-      const notebookManager = NotebookManager.getInstance();
-      notebookManager.showCollectionNotebook();
+      localStorage.setItem("words", JSON.stringify(this.collectedWords));
+      localStorage.setItem("phrases", JSON.stringify(this.collectedPhrases));
+
+      this.notebookManager.showCollectionNotebook();
 
       // Mark as completed
       this.seedTimeout = null;
@@ -245,29 +249,6 @@ Feeling Good?`);
 
   getRandomPhrase() {
     return this.phrases[Math.floor(Math.random() * this.phrases.length)];
-  }
-
-  // Update notebook with collected word
-  updateNotebook(word) {
-    const notebook = this.getOrCreateNotebook();
-    const wordElement = this.createElement("span", {
-      textContent: word + " ",
-      className: "collected-word",
-    });
-    notebook.appendChild(wordElement);
-  }
-
-  // Get or create notebook element
-  getOrCreateNotebook() {
-    let notebook = document.getElementById("word-notebook");
-    if (!notebook) {
-      notebook = this.createElement("div", {
-        id: "word-notebook",
-        className: "notebook",
-      });
-      document.body.appendChild(notebook);
-    }
-    return notebook;
   }
 
   // Check for completed phrases
@@ -308,7 +289,6 @@ Feeling Good?`);
   markPhraseAsComplete(phrase) {
     this.collectedPhrases.push(phrase);
     this.showPhraseCompletionAlert(phrase);
-    this.highlightPhrase(phrase);
   }
 
   // Show phrase completion alert
@@ -318,33 +298,10 @@ You've collected all words for the phrase:
 ${phrase}`);
   }
 
-  // Highlight completed phrase in notebook
-  highlightPhrase(phrase) {
-    const notebook = document.getElementById("word-notebook");
-    if (notebook) {
-      notebook.innerHTML = notebook.innerHTML.replace(
-        phrase,
-        `<span class="completed-phrase">${phrase}</span>`
-      );
-    }
-  }
-
   // Get player rectangle
   getPlayerRect() {
     const playerMarker = document.getElementById("marker");
     return playerMarker ? playerMarker.getBoundingClientRect() : null;
-  }
-
-  // Get player position
-  getPlayerPosition() {
-    const rect = this.getPlayerRect();
-    if (rect) {
-      return {
-        x: rect.left + rect.width / 2,
-        y: rect.top + rect.height / 2,
-      };
-    }
-    return { x: 0, y: 0 };
   }
 
   // Reset collection state
@@ -357,17 +314,6 @@ ${phrase}`);
       clearTimeout(this.seedTimeout);
       this.seedTimeout = null;
     }
-  }
-
-  // Get collection statistics
-  getStats() {
-    return {
-      collectedWords: this.collectedWords.length,
-      collectedPhrases: this.collectedPhrases.length,
-      totalPhrases: this.phrases.length,
-      completionPercentage:
-        (this.collectedPhrases.length / this.phrases.length) * 100,
-    };
   }
 }
 

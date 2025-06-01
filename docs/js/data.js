@@ -1,7 +1,9 @@
-const places = {
+export const places = {
   1: {
     info: "Bamboo stem",
     top: 0.28,
+    // origin at the top left corner
+    // and top:0.28 means the distance is 28% of the parent container to the top margin
     left: 0.82,
     level: 0,
   },
@@ -36,7 +38,7 @@ const places = {
     level: 1,
   },
 };
-const phrases = [
+export const phrases = [
   "We're all mad.",
   "Curiouser still!",
   "No use going back; I'm different now.",

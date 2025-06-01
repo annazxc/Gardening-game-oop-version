@@ -1,3 +1,4 @@
+import { places } from "../js/data.js";
 export class QRScanner {
   constructor(game) {
     this.scannerOn = false;
@@ -88,14 +89,6 @@ export class QRScanner {
       } catch (err) {
         console.error("Error stopping scanner:", err);
       }
-    }
-  }
-
-  // Clean up resources when scanner is no longer needed
-  destroy() {
-    if (this.reader) {
-      this.stopScanner();
-      this.reader = null;
     }
   }
 }

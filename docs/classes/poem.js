@@ -1,28 +1,34 @@
-import { getApiKey } from "../js/config.js";
+import { loadCssFile, createElement } from "../js/utils.js";
+import { getApiKey } from "../api/keys.js";
 export class PoemGenerator {
   constructor() {
     this.GEMINI_API_KEY = getApiKey("poem");
+    this.words = JSON.parse(localStorage.getItem("words"));
+    this.phrases = JSON.parse(localStorage.getItem("phrases"));
+    this.isPoemGenerated = false;
+    this.poemButtonAdded = false;
   }
 
   async generatePoemFromSeeds() {
     const API_URL =
       "https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent";
 
-    const words = collectedWords.join(" ");
-    const phrases = collectedPhrases.join(" ");
+    const words = this.words;
+    const phrases = this.phrases;
 
     let prompt = "Write a short, imaginative poem ";
 
-    if (collectedPhrases.length > 0) {
+    if (phrases.length > 0) {
       prompt += `inspired by these phrases: "${phrases}". `;
     }
 
-    if (collectedWords.length > 0) {
+    if (words.length > 0) {
       prompt += `Try to incorporate these words: ${words}. `;
     }
 
-    prompt +=
-      "The poem should have an Alice in Wonderland-like whimsical, magical quality. Make it 4-8 lines long.";
+    prompt += `The poem should have an Alice in Wonderland-like whimsical, magical quality. 
+      Make it 4-8 lines long.
+      Don't add symbols like *`;
 
     try {
       const response = await fetch(`${API_URL}?key=${this.GEMINI_API_KEY}`, {
@@ -56,117 +62,79 @@ export class PoemGenerator {
       return poem;
     } catch (error) {
       console.error("Error generating poem:", error);
-
-      const fallbackPoem = this.generateFallbackPoem(words, phrases);
-      this.displayPoem(fallbackPoem);
-
-      return fallbackPoem;
+      return "Error generating poem";
     }
   }
 
   displayPoem(poem) {
-    const poemModal = document.createElement("div");
-    poemModal.className = "poem-modal";
+    if (!this.isPoemGenerated) {
+      const poemModal = createElement("div", { className: "poem-modal" });
+      const poemContent = createElement("div", { classname: "poem-content" });
+      const title = createElement("h2", {}, "Your Garden Poem : ");
+      poemContent.appendChild(title);
+      const poemText = createElement("div", { className: "poem-text" });
+      const formattedPoem = poem.split("\n").map((line) => {
+        const lineElement = createElement("p", {}, line);
+        return lineElement;
+      });
 
-    const poemContent = document.createElement("div");
-    poemContent.className = "poem-content";
+      formattedPoem.forEach((line) => poemText.appendChild(line));
+      poemContent.appendChild(poemText);
+      const poemNote = createElement(
+        "p",
+        { className: "poem-note" },
+        "This poem was inspired by the words and phrases you collected on your journey."
+      );
+      poemContent.appendChild(poemNote);
+      const closeButton = createElement(
+        "button",
+        {
+          className: "btn btn-primary",
+          onclick: () => {
+            if (poemModal.classList.contains("closing")) return;
+            poemModal.classList.add("closing");
+            this.reset();
 
-    const title = document.createElement("h2");
-    title.textContent = "Your Garden Poem : ";
-    poemContent.appendChild(title);
+            setTimeout(() => {
+              poemModal.remove();
+            }, 500);
+          },
+        },
+        "Save & Continue"
+      );
+      poemContent.appendChild(closeButton);
 
-    const poemText = document.createElement("div");
-    poemText.className = "poem-text";
-
-    const formattedPoem = poem.split("\n").map((line) => {
-      const lineElement = document.createElement("p");
-      lineElement.textContent = line;
-      return lineElement;
-    });
-
-    formattedPoem.forEach((line) => poemText.appendChild(line));
-    poemContent.appendChild(poemText);
-
-    const poemNote = document.createElement("p");
-    poemNote.className = "poem-note";
-    poemNote.textContent =
-      "This poem was inspired by the words and phrases you collected on your journey.";
-    poemContent.appendChild(poemNote);
-
-    const closeButton = document.createElement("button");
-    closeButton.className = "btn btn-primary";
-    closeButton.textContent = "Save & Continue";
-    closeButton.onclick = function () {
-      if (poemModal.classList.contains("closing")) return;
-      poemModal.classList.add("closing");
-
+      poemModal.appendChild(poemContent);
+      document.body.appendChild(poemModal);
+      this.isPoemGenerated = true;
       setTimeout(() => {
-        poemModal.remove();
-      }, 500);
-    };
-    poemContent.appendChild(closeButton);
-
-    poemModal.appendChild(poemContent);
-    document.body.appendChild(poemModal);
-
-    setTimeout(() => {
-      poemModal.classList.add("open");
-    }, 10);
-  }
-
-  generateFallbackPoem(words, phrases) {
-    const usableWords = collectedWords.slice(
-      0,
-      Math.min(5, collectedWords.length)
-    );
-
-    let poem = "Down the rabbit hole of words,\n";
-    poem += "Where " + usableWords.join(" and ") + " swirl,\n";
-
-    if (collectedPhrases.length > 0) {
-      poem += collectedPhrases[0] + "\n";
+        poemModal.classList.add("open");
+      }, 10);
     }
-
-    poem += "A garden of wonders unfurls.";
-
-    return poem;
   }
 
   updateNotebookWithPoem() {
-    const originalShowNotebook = window.showCollectionNotebook;
-    let poemButtonAdded = false;
+    if (!this.poemButtonAdded) {
+      const notebookContent = document.querySelector(".notebook-content");
+      if (notebookContent) {
+        const poemButton = document.createElement("button");
+        poemButton.className = "btn btn-primary";
+        poemButton.textContent = "Your Garden Poem";
+        poemButton.onclick = () => this.generatePoemFromSeeds();
 
-    window.showCollectionNotebook = () => {
-      originalShowNotebook();
-      if (!poemButtonAdded) {
-        const notebookContent = document.querySelector(".notebook-content");
-        if (notebookContent) {
-          const poemButton = document.createElement("button");
-          poemButton.className = "btn btn-primary";
-          poemButton.textContent = "Your Garden Poem";
-          poemButton.onclick = () => this.generatePoemFromSeeds();
-
-          // Get the button container or create one
-          let buttonContainer = document.querySelector(".notebook-buttons");
-          buttonContainer.insertBefore(poemButton, buttonContainer.lastChild);
-          poemButtonAdded = true;
-        }
+        // Get the button container or create one
+        let buttonContainer = document.querySelector(".notebook-buttons");
+        buttonContainer.insertBefore(poemButton, buttonContainer.lastChild);
+        this.poemButtonAdded = true;
       }
-    };
+    }
+  }
+  reset() {
+    this.isPoemGenerated = false;
   }
 
   initPoemGenerator() {
     this.updateNotebookWithPoem();
-    this.loadCssFile("css/poem.css");
-  }
-
-  loadCssFile(cssFilePath) {
-    if (!document.querySelector(`link[href="${cssFilePath}"]`)) {
-      const link = document.createElement("link");
-      link.rel = "stylesheet";
-      link.type = "text/css";
-      link.href = cssFilePath;
-      document.head.appendChild(link);
-    }
+    loadCssFile("css/poem.css");
   }
 }

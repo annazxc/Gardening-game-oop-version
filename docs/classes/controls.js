@@ -1,16 +1,23 @@
+import { places } from "../js/data.js";
+import { showMessage, calculateDistance } from "../js/utils.js";
+
 export class Controls {
   constructor(game) {
     this.game = game;
     this.markerPosition = {
-      top: 0.5,
+      top: 0.5, //50% of parent container to the top margin
       left: 0.5,
       level: 0,
     };
-    this.moveSpeed = 0.02;
+    this.moveSpeed = 0.02; // 2% of parent container
     this.marker = null;
     this.mapContainer = null;
 
     this.handleKeyDown = this.handleKeyDown.bind(this);
+    // In JavaScript, `this` is dynamic, it’s determined by how a function is called, not where it's defined.
+    // When passing a class method like `this.handleKeyDown` to addEventListener,
+    // the browser calls it without a context, so `this` will be undefined in strict mode.
+    // To ensure `this` refers to the class instance, bind it manually.
   }
 
   setupControls() {
@@ -47,11 +54,6 @@ export class Controls {
         this.moveMarker(this.moveSpeed, 0);
         e.preventDefault();
         break;
-      case "Enter":
-      case " ": // Spacebar
-        this.handleExploring();
-        e.preventDefault();
-        break;
     }
   }
 
@@ -63,6 +65,7 @@ export class Controls {
     this.markerPosition.top += deltaY;
 
     // Keep marker within bounds
+    //Clamp value between 0 to 1 --> 0% to 100%
     this.markerPosition.left = Math.max(
       0,
       Math.min(1, this.markerPosition.left)
@@ -72,7 +75,6 @@ export class Controls {
     // Update visual position
     this.updateMarkerPosition();
 
-    // Notify game of position change for any game-specific logic
     if (this.game && this.game.onMarkerMove) {
       this.game.onMarkerMove(this.markerPosition);
     }
@@ -90,14 +92,13 @@ export class Controls {
     this.updateMarkerPosition();
   }
 
-  // Handle exploration at current location
   handleExploring() {
     const { nearestPlace, minDistance } = this.checkLocation();
 
     if (nearestPlace) {
       this.game.handleLocationExploration(nearestPlace, minDistance);
     } else {
-      this.game?.showMessage(`
+      showMessage(`
         No nearby locations.
         Please continue exploring
         to find interesting places.
@@ -108,23 +109,23 @@ export class Controls {
   // Check for nearby locations
   checkLocation() {
     const threshold = 0.4;
+    //40% distance of parent container,
+    // cause marker position is defined by %
     let nearestPlace = null;
     let minDistance = Infinity;
 
-    // Check if places data is available
     if (typeof places === "undefined") {
       console.warn("Places data not available");
       return { nearestPlace, minDistance };
     }
 
     // Find nearest place on current level
+    // in data.js there are level_0,1,2 with different images respectively
     for (const id in places) {
       const place = places[id];
 
       if (place.level === this.markerPosition.level) {
-        const dx = Math.abs(place.left - this.markerPosition.left);
-        const dy = Math.abs(place.top - this.markerPosition.top);
-        const distance = Math.sqrt(dx * dx + dy * dy);
+        const distance = calculateDistance(place, this.markerPosition);
 
         if (distance < threshold && distance < minDistance) {
           nearestPlace = place;
@@ -132,7 +133,6 @@ export class Controls {
         }
       }
     }
-
     return { nearestPlace, minDistance };
   }
 }

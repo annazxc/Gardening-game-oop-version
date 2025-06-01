@@ -43,15 +43,6 @@
   background-color: var(--color-accent);
 }
 
-.audio-btn {
-  position: absolute;
-  top: var(--space-sm);
-  right: var(--space-sm);
-  padding: var(--space-sm) var(--space-md);
-  font-size: var(--font-size-sm);
-  z-index: var(--z-index-ui);
-}
-
 .card {
   background-color: rgba(255, 255, 255, 0.8);
   border-radius: var(--border-radius-md);

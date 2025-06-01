@@ -1,142 +1,83 @@
+import { StorytellerAPI } from "./storyteller_api.js";
+import { loadCssFile } from "../js/utils.js";
+import { createElement } from "../js/utils.js";
 export class Storyteller {
   constructor() {
-    this.witTreeController = null;
-    this.responseCache = new Map();
+    this.storytellerAPI = new StorytellerAPI();
   }
-
-  createWitTree(x, y) {
+  async init() {
+    await this.initStorytellerSystem();
+    console.log("Storyteller system fully initialized!");
+  }
+  createWitTree() {
     let existingTree = document.getElementById("wit-tree");
     if (existingTree) {
       return existingTree;
     }
-
-    const witTree = document.createElement("div");
-    witTree.id = "wit-tree";
-    witTree.className = "wit-tree";
-    witTree.style.position = "absolute";
-    witTree.style.left = `${x}px`;
-    witTree.style.top = `${y}px`;
-    witTree.style.width = "300px";
-    witTree.style.height = "150px";
-    witTree.style.backgroundImage = "url('assets/images/wit-tree.png')";
-    witTree.style.backgroundSize = "contain";
-    witTree.style.backgroundRepeat = "no-repeat";
-    witTree.style.cursor = "pointer";
-    witTree.style.zIndex = "50";
-
-    witTree.addEventListener("click", () => {
-      this.showStorytellerDialog();
+    const witTree = createElement("div", {
+      className: "wit-tree",
+      id: "wit-tree",
+      onclick: () => this.showStorytellerDialog(),
     });
 
-    const treeController = this.initializeWitTree("wit-tree");
-
-    const mapContainer =
-      document.getElementById("map-container") || document.body;
+    const mapContainer = document.getElementById("map-container");
     mapContainer.appendChild(witTree);
-
-    setInterval(() => {
-      if (Math.random() > 0.7) {
-        this.createFallingLeaf(witTree);
-      }
-    }, 3000);
 
     return witTree;
   }
 
-  createFallingLeaf(treeElement) {
-    const leaf = document.createElement("div");
-    leaf.className = "falling-leaf";
-
-    const treeRect = treeElement.getBoundingClientRect();
-    const startX = Math.random() * 80 + 20;
-
-    leaf.style.position = "absolute";
-    leaf.style.left = `${startX}px`;
-    leaf.style.top = "50px";
-    leaf.style.width = "10px";
-    leaf.style.height = "10px";
-    leaf.style.backgroundColor = Math.random() > 0.5 ? "#8BC34A" : "#CDDC39";
-    leaf.style.borderRadius = "50% 0 50% 50%";
-    leaf.style.transform = `rotate(${Math.random() * 360}deg)`;
-    leaf.style.opacity = "0.8";
-    leaf.style.zIndex = "49";
-
-    treeElement.appendChild(leaf);
-
-    let posY = 50;
-    let posX = startX;
-    let rotation = Math.random() * 360;
-    let opacity = 0.8;
-
-    const fall = () => {
-      posY += 1;
-      posX += Math.sin(posY / 10) * 0.5;
-      rotation += 2;
-      opacity -= 0.005;
-
-      leaf.style.top = `${posY}px`;
-      leaf.style.left = `${posX}px`;
-      leaf.style.transform = `rotate(${rotation}deg)`;
-      leaf.style.opacity = opacity;
-
-      if (posY < 200 && opacity > 0) {
-        requestAnimationFrame(fall);
-      } else {
-        leaf.remove();
-      }
-    };
-
-    requestAnimationFrame(fall);
-  }
-
   showStorytellerDialog() {
-    let existingDialog = document.getElementById("storyteller-dialog");
-    if (existingDialog) {
-      existingDialog.classList.add("open");
-      return;
-    }
-
-    const dialog = document.createElement("div");
-    dialog.id = "storyteller-dialog";
-    dialog.className = "storyteller-dialog";
-
-    const dialogContent = document.createElement("div");
-    dialogContent.className = "storyteller-content";
-
-    const title = document.createElement("h2");
-    title.textContent = "The Wit Tree";
-    title.className = "storyteller-title";
+    const dialog = createElement("div", {
+      id: "storyteller-dialog",
+      className: "storyteller-dialog",
+    });
+    const dialogContent = createElement("div", {
+      className: "storyteller-content",
+    });
+    const title = createElement(
+      "h2",
+      { className: "storyteller-title" },
+      "The Wit Tree"
+    );
     dialogContent.appendChild(title);
 
-    const intro = document.createElement("p");
-    intro.textContent = `Hello, curious wanderer! 
+    const intro = createElement(
+      "p",
+      { className: "storyteller-intro" },
+      `Hello, curious wanderer! 
         I am the Wit Tree, keeper of stories from Wonderland. 
-        What would you like to know about Alice's adventures?`;
-    intro.className = "storyteller-intro";
+        What would you like to know about Alice's adventures?`
+    );
     dialogContent.appendChild(intro);
 
-    const chatHistory = document.createElement("div");
-    chatHistory.className = "storyteller-history";
-    chatHistory.id = "storyteller-history";
+    const chatHistory = createElement("div", {
+      className: "storyteller-history",
+      id: "storyteller-history",
+    });
     dialogContent.appendChild(chatHistory);
 
-    const inputContainer = document.createElement("div");
-    inputContainer.className = "storyteller-input-container";
+    const inputContainer = createElement("div", {
+      className: "storyteller-input-container",
+    });
 
-    const input = document.createElement("input");
-    input.type = "text";
-    input.className = "storyteller-input";
-    input.placeholder =
-      "Anything curious about Alice in Wonderland ? ლ(╹◡╹ლ) :";
+    const input = createElement("input", {
+      type: "text",
+      className: "storyteller-input",
+      placeholder: "Anything curious about Alice in Wonderland ? ლ(╹◡╹ლ) :",
+    });
+
     inputContainer.appendChild(input);
-
-    const askButton = document.createElement("button");
-    askButton.className = "storyteller-ask-btn";
-    askButton.textContent = "Ask";
-    askButton.onclick = () => {
-      this.askStorytellerQuestion(input.value);
-      input.value = "";
-    };
+    const askButton = createElement(
+      "button",
+      {
+        className: "storyteller-ask-btn",
+        onclick: () => {
+          this.askStorytellerQuestion(input.value);
+          input.value = "";
+        },
+      },
+      "Ask"
+    );
     inputContainer.appendChild(askButton);
 
     input.addEventListener("keypress", (e) => {
@@ -145,25 +86,29 @@ export class Storyteller {
         input.value = "";
       }
     });
-
     dialogContent.appendChild(inputContainer);
 
-    const closeButton = document.createElement("button");
-    closeButton.className = "storyteller-close-btn";
-    closeButton.textContent = "X";
-    closeButton.onclick = () => {
-      // Stop any ongoing speech when dialog closes
-      const treeController = this.getWitTreeController();
-      if (treeController) {
-        treeController.voice.cancel();
-        treeController.animator.stopSpeakingAnimation();
-      }
+    const closeButton = createElement(
+      "button",
+      {
+        className: "storyteller-close-btn",
+        onclick: () => {
+          // Stop any ongoing speech when dialog closes
+          const tree = this.initializeWitTree("wit-tree");
+          if (tree) {
+            tree.voice.cancel();
+            tree.animator.stopSpeakingAnimation();
+          }
 
-      dialog.classList.remove("open");
-      setTimeout(() => {
-        dialog.style.display = "none";
-      }, 500);
-    };
+          dialog.classList.remove("open");
+          setTimeout(() => {
+            dialog.style.display = "none";
+          }, 500);
+        },
+      },
+      "X"
+    );
+
     dialogContent.appendChild(closeButton);
 
     dialog.appendChild(dialogContent);
@@ -181,39 +126,31 @@ export class Storyteller {
 
   async askStorytellerQuestion(question) {
     if (!question.trim()) return;
-
     const chatHistory = document.getElementById("storyteller-history");
 
     // Add user question
-    const userQ = document.createElement("div");
-    userQ.className = "storyteller-user-message";
-    userQ.textContent = question;
+    const userQ = createElement(
+      "div",
+      { className: "storyteller-user-message" },
+      question
+    );
+
     chatHistory.appendChild(userQ);
     chatHistory.scrollTop = chatHistory.scrollHeight;
 
     // Add loading indicator
-    const loading = document.createElement("div");
-    loading.className = "storyteller-loading";
-    loading.innerHTML = '<div class="dot-typing"></div>';
+    const loading = createElement("div", {
+      className: "storyteller-loading",
+      innerHTML: '<div class="dot-typing"></div>',
+    });
+
     chatHistory.appendChild(loading);
     chatHistory.scrollTop = chatHistory.scrollHeight;
 
-    const treeController = this.getWitTreeController();
+    const treeController = this.initializeWitTree("wit-tree");
 
-    // Trigger animations and get cached or fresh answer
-    treeController.animator.activateGlowEffect();
     let answer;
-
-    // Check cache first
-    const cachedResponse = this.getCachedResponse(question);
-    if (cachedResponse) {
-      answer = cachedResponse;
-    } else {
-      // If not in cache, fetch from API
-      answer = await queryAliceStorybase(question);
-      // Cache the new response
-      this.cacheResponse(question, answer);
-    }
+    answer = await this.storytellerAPI.queryAliceStorybase(question);
 
     // Remove loading indicator
     loading.remove();
@@ -244,143 +181,98 @@ export class Storyteller {
     chatHistory.scrollTop = chatHistory.scrollHeight;
   }
 
-  getWitTreeController() {
-    // Check if controller already exists
-    if (this.witTreeController) {
-      return this.witTreeController;
-    }
+  async initStorytellerSystem() {
+    loadCssFile("css/storyteller.css");
 
-    // If not, create it
-    const treeElement = document.getElementById("wit-tree");
+    this.createWitTree();
+    this.initializeWitTree("wit-tree");
+  }
+
+  initializeWitTree(treeId) {
+    const treeElement = document.getElementById(treeId);
     if (!treeElement) {
-      console.error("Tree element not found");
+      console.error(`Tree element with id ${treeId} not found`);
       return null;
     }
 
-    // Initialize controller
-    this.witTreeController = this.initializeWitTree("wit-tree");
-    return this.witTreeController;
-  }
-
-  // Response caching methods
-  getCachedResponse(question) {
-    const simplifiedQuestion = this.simplifyForCache(question);
-    return this.responseCache.get(simplifiedQuestion);
-  }
-
-  cacheResponse(question, answer) {
-    const simplifiedQuestion = this.simplifyForCache(question);
-    this.responseCache.set(simplifiedQuestion, answer);
-
-    // Limit cache size to prevent memory issues
-    if (this.responseCache.size > 20) {
-      // Remove oldest entry
-      const oldestKey = this.responseCache.keys().next().value;
-      this.responseCache.delete(oldestKey);
-    }
-  }
-
-  simplifyForCache(text) {
-    // Simple normalization for better cache hits
-    return text
-      .toLowerCase()
-      .replace(/[^\w\s]/g, "") // Remove punctuation
-      .replace(/\s+/g, " ") // Normalize whitespace
-      .trim();
-  }
-
-  loadCssFile(cssFilePath) {
-    if (!document.querySelector(`link[href="${cssFilePath}"]`)) {
-      const link = document.createElement("link");
-      link.rel = "stylesheet";
-      link.type = "text/css";
-      link.href = cssFilePath;
-      document.head.appendChild(link);
-    }
-  }
-
-  initStorytellerSystem() {
-    this.loadCssFile("css/storyteller.css");
-
-    const treeX = 500;
-    const treeY = 300;
-    this.createWitTree(treeX, treeY);
-
-    // Initialize our enhanced features
-    const treeController = this.getWitTreeController();
-
-    // Add player proximity detection for the glow effect
-    document.addEventListener("mousemove", (event) => {
-      const treeElement = document.getElementById("wit-tree");
-      if (!treeElement) return;
-
-      const treeRect = treeElement.getBoundingClientRect();
-      const treeCenterX = treeRect.left + treeRect.width / 2;
-      const treeCenterY = treeRect.top + treeRect.height / 2;
-
-      // Calculate distance from mouse to tree center
-      const distance = Math.sqrt(
-        Math.pow(event.clientX - treeCenterX, 2) +
-          Math.pow(event.clientY - treeCenterY, 2)
-      );
-
-      // If mouse is close to tree, trigger the glow effect
-      if (distance < 200) {
-        treeController.animator.triggerReactionToPlayerApproach();
-      }
-    });
-
-    console.log("Enhanced storyteller system initialized!");
-  }
-
-  // This is a stub method since we don't have the actual implementation
-  initializeWitTree(treeId) {
-    // In the original code, this function should be defined elsewhere
-    // For now, we'll create a minimal object to prevent errors
     return {
       animator: {
-        activateGlowEffect: () => console.log("Activating glow effect"),
-        startSpeakingAnimation: () => console.log("Start speaking animation"),
-        stopSpeakingAnimation: () => console.log("Stop speaking animation"),
-        triggerReactionToPlayerApproach: () =>
-          console.log("Tree reacts to player approach"),
+        startSpeakingAnimation: () => {
+          treeElement.style.animation =
+            "treeSpeak 0.5s ease-in-out infinite alternate";
+        },
+        stopSpeakingAnimation: () => {
+          treeElement.style.animation = "none";
+        },
       },
       voice: {
-        speak: (text) => console.log(`Tree says: ${text}`),
-        cancel: () => console.log("Speech canceled"),
+        speak: (text) => {
+          if ("speechSynthesis" in window) {
+            const speakWithVoice = () => {
+              const utterance = new SpeechSynthesisUtterance(text);
+
+              // Get available voices
+              const voices = speechSynthesis.getVoices();
+              console.log("Available voices:", voices.length);
+
+              const ukMaleVoice =
+                voices.find(
+                  (voice) =>
+                    voice.lang.includes("en-GB") &&
+                    (voice.name.toLowerCase().includes("daniel") ||
+                      voice.name.toLowerCase().includes("arthur") ||
+                      voice.name.toLowerCase().includes("oliver") ||
+                      voice.name.toLowerCase().includes("male"))
+                ) ||
+                voices.find((voice) => voice.lang.includes("en-GB")) ||
+                voices.find(
+                  (voice) =>
+                    voice.name.toLowerCase().includes("daniel") ||
+                    voice.name.toLowerCase().includes("arthur")
+                );
+
+              console.log(
+                "Selected voice:",
+                ukMaleVoice ? ukMaleVoice.name : "none found"
+              );
+
+              // Set the voice if found
+              if (ukMaleVoice) {
+                utterance.voice = ukMaleVoice;
+              }
+
+              utterance.rate = 1.2;
+              utterance.pitch = 1.1;
+              speechSynthesis.speak(utterance);
+
+              utterance.onend = () => {
+                const controller = this.initializeWitTree("wit-tree");
+                if (controller) {
+                  controller.animator.stopSpeakingAnimation();
+                }
+              };
+            };
+
+            // Check if voices are loaded
+            const voices = speechSynthesis.getVoices();
+            if (voices.length > 0) {
+              speakWithVoice();
+            } else {
+              // Wait for voices to load
+              speechSynthesis.addEventListener(
+                "voiceschanged",
+                speakWithVoice,
+                { once: true }
+              );
+            }
+          }
+        },
+        cancel: () => {
+          if ("speechSynthesis" in window) {
+            speechSynthesis.cancel();
+          }
+        },
       },
     };
   }
-}
-
-// Create singleton instance
-const storytellerInstance = new Storyteller();
-
-// Compatibility API functions
-function createWitTree(x, y) {
-  return storytellerInstance.createWitTree(x, y);
-}
-
-function createFallingLeaf(treeElement) {
-  return storytellerInstance.createFallingLeaf(treeElement);
-}
-
-function showStorytellerDialog() {
-  return storytellerInstance.showStorytellerDialog();
-}
-
-function askStorytellerQuestion(question) {
-  return storytellerInstance.askStorytellerQuestion(question);
-}
-
-function typeWriterEffect(element, text, i, speed) {
-  return storytellerInstance.typeWriterEffect(element, text, i, speed);
-}
-
-function getWitTreeController() {
-  return storytellerInstance.getWitTreeController();
-}
-
-function initStorytellerSystem() {
-  return storytellerInstance.initStorytellerSystem();
 }
