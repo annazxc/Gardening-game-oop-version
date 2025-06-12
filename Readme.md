@@ -1,6 +1,6 @@
 # Hello and Welcome!
 
-Play the game directly by clicking [here](https://annazxc.github.io/Gardening-game-oop-version/).
+Play the game directly by clicking [here](https://annazxc.github.io/Gardening-game-oop-version/).   
 The api wouldn't work since i cannot expose my groq/gemini api keys here publicly.
 
 ## Curious About Me?
