@@ -309,7 +309,7 @@ class MapService {
       console.warn("Leaflet Routing plugin not available");
       return;
     }
-
+    const apiKey = getApiKey("graphhopper");
     const routeControl = L.Routing.control({
       waypoints: [L.latLng(userLat, userLng)],
       routeWhileDragging: true,

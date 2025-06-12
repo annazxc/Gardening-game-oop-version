@@ -78,3 +78,15 @@
   gap: 10px;
   margin-top: 20px;
 }
+.words-display {
+  margin: 10px 0;
+  line-height: 1.6;
+}
+
+.words-line {
+  margin-bottom: 8px;
+  padding: 2px 0;
+  word-spacing: 4px;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 4px;
+}

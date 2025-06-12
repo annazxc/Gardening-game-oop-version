@@ -33,12 +33,12 @@ export class SeedCollection {
 
   createSeedButton() {
     const seedButton = createElement(
-      "button",
+      "button", //tag
       {
-        className: "btn btn-primary",
+        className: "btn btn-primary", //attribute
         id: "seedButton",
       },
-      "Click for Seeds"
+      "Click for Seeds" //textContent
     );
 
     this.applySeedButtonStyles(seedButton);

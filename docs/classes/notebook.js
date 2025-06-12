@@ -83,13 +83,28 @@ export class NotebookManager {
     const title = createElement("h3", {}, "Words Collected:");
 
     const words = JSON.parse(localStorage.getItem("words"));
-    const wordsList = createElement(
-      "div",
-      {
-        className: "words-display",
-      },
-      words
-    );
+
+    // Create container for words
+    const wordsContainer = createElement("div", {
+      className: "words-display",
+    });
+
+    // Group words into chunks of 10
+    const chunkSize = 10;
+    for (let i = 0; i < words.length; i += chunkSize) {
+      const chunk = words.slice(i, i + chunkSize);
+
+      // Create a line element for each group of 10 words
+      const line = createElement(
+        "div",
+        {
+          className: "words-line",
+        },
+        chunk.join(" ")
+      );
+
+      wordsContainer.appendChild(line);
+    }
 
     const seedsCount = createElement(
       "p",
@@ -99,7 +114,9 @@ export class NotebookManager {
       `Total Seeds: ${words.length}`
     );
 
-    [title, wordsList, seedsCount].forEach((el) => section.appendChild(el));
+    [title, wordsContainer, seedsCount].forEach((el) =>
+      section.appendChild(el)
+    );
     return section;
   }
 

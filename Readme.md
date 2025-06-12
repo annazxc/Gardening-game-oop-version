@@ -104,7 +104,7 @@ It uses RAG (Retrieval-Augmented Generation) to enhance **Precision and Relevanc
 
 After players gather words from selected phrases in the **Word Collection Game**, the collected words are passed to **Gemini 2.0 Flash** to generate original poems.
 
-## I created the vector database of "Alice's Adventures in Wonderland" in the [Colab notebook](https://colab.research.google.com/drive/1UBXK-FOxOxoQEHSp8lImWvXJcO_5jvyP)
+## I created the vector database of "Alice's Adventures in Wonderland" in the [Colab notebook](https://colab.research.google.com/drive/1e1Wq-6Y06wbs4NPsYJtpkybm40aXjVRw)
 
 # Required dependencies:
 
@@ -115,6 +115,14 @@ pip install flask flask-cors langchain-community huggingface-hub faiss-cpu
 firstly change directory to folder api
 in terminal: cd/docs/api
 python vector_db_api.py
+
+# Used library
+
+- QR code:
+  html5-qrcode@2.3.8/html5-qrcode library
+
+- [leaflet map](https://leafletjs.com/index.html)
+- [leaflet plugin: routing machine](https://app.unpkg.com/leaflet-routing-machine@3.2.12/files/dist)
 
 # Check available wit-tree voices
 

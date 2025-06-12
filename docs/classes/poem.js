@@ -2,7 +2,7 @@ import { loadCssFile, createElement } from "../js/utils.js";
 import { getApiKey } from "../api/keys.js";
 export class PoemGenerator {
   constructor() {
-    this.GEMINI_API_KEY = getApiKey("poem");
+    this.GEMINI_API_KEY = getApiKey("gemini");
     this.words = JSON.parse(localStorage.getItem("words"));
     this.phrases = JSON.parse(localStorage.getItem("phrases"));
     this.isPoemGenerated = false;

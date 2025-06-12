@@ -44,7 +44,7 @@ export function showMessage(message, duration = 3000) {
     { className: "message-box" },
     message
   );
-  this.displayTemporaryElement(messageBox, duration);
+  displayTemporaryElement(messageBox, duration);
 }
 // Utility method to escape HTML to prevent XSS (Cross-Site Scripting)
 //.textContent is safe by itself.

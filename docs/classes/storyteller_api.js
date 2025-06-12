@@ -206,18 +206,3 @@ export class StorytellerAPI {
 
 // Create singleton instance
 const storytellerAPIInstance = new StorytellerAPI();
-
-// Backward compatibility functions - update to use async/await for init
-let apiInitialized = false;
-let initPromise = null;
-
-// Initialize API once before usage
-function ensureInitialized() {
-  if (!apiInitialized && !initPromise) {
-    initPromise = (async () => {
-      await storytellerAPIInstance.init();
-      apiInitialized = true;
-    })();
-  }
-  return initPromise;
-}
